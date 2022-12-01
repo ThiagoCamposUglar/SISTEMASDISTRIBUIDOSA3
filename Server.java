@@ -16,7 +16,7 @@ public class Server {
 
     public void startServer() throws InterruptedException {
       try {
-        System.out.println("Esperando os " + numeroDeJogadores + " se conectarem");
+        System.out.println("Esperando os " + numeroDeJogadores + " se conectarem/Número de vencedores: " + numeroDeVencedores);
         while(!serverSocket.isClosed()){
           if(ClientHandler.gameState.isEmpty()){
             Socket socket = this.serverSocket.accept();
@@ -27,7 +27,13 @@ public class Server {
             thread.start();
 
             if(numeroDeJogadores == ClientHandler.clientHandlers.size()){
-              ClientHandler.gameState = "COMECAR";
+              if(numeroDeJogadores == 2){
+                ClientHandler.gameState = "PAROUIMPAR";
+              }
+              else{
+                ClientHandler.gameState = "2OU1";
+              }
+              ClientHandler.changeClientsGameState(ClientHandler.gameState);
             }
           }
           else{
@@ -52,10 +58,8 @@ public class Server {
                 System.out.print(".");
                 Thread.sleep(2000);
               }
-              continue;
             }
           }
-
         }
       } 
       catch (IOException e) {
@@ -127,11 +131,17 @@ public class Server {
         numeroDeJogadores = 2;
       }
 
-      try {
-        System.out.println("Insira o numero vencedores(1 ou 2)");
-        numeroDeVencedores = input.nextInt();
-      } catch (Exception e) {
+      if(numeroDeJogadores > 2){
+        try {
+          System.out.println("Insira o numero vencedores(1 ou 2)");
+          numeroDeVencedores = input.nextInt();
+        } catch (Exception e) {
+          numeroDeVencedores = 1;
+        }
+      }
+      else{
         numeroDeVencedores = 1;
+        System.out.println("1 vencedor");
       }
 
       input.close();

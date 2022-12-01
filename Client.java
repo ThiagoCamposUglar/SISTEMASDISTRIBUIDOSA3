@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Client {
@@ -34,25 +35,34 @@ public class Client {
 
             Scanner scanner = new Scanner(System.in);
             while(socket.isConnected()){
-                String numero = scanner.nextLine().trim();
+                int numero = 1;
+                try {
+                    numero = scanner.nextInt();
+                } catch (InputMismatchException e) {
+                    System.out.println("Número inválido!");
+                    continue;
+                }
+                catch(Exception e){
+                    e.printStackTrace();
+                }
                 if(gameState.isEmpty()){
                     System.out.println("O jogo ainda nao comecou.");
                     continue;
                 }
-                if(gameState.equals("2OU1") && (!numero.equals("1") || !numero.equals("2"))){
-                    System.out.println("Numero invalido para dois ou um!");
+                if(gameState.equals("2OU1") && (numero != 1 || numero != 2)){
+                    System.out.println("Número inválido para dois ou um!");
                     continue;
                 }
                 if(jaEscolheu){
-                    System.out.println("Voce ja escolheu");
+                    System.out.println("Você ja escolheu");
                     continue;
                 }
                 if(gameState != "ESCOLHER"){
-                    bufferedWriter.write(numero);
+                    bufferedWriter.write(String.valueOf(numero));
                     bufferedWriter.newLine();
                     bufferedWriter.flush();
                     jaEscolheu = true;
-                    System.out.println("Numero escolhido");
+                    System.out.println("Número escolhido");
                 }
             }
             scanner.close();
@@ -75,24 +85,24 @@ public class Client {
                             gameState = messageServer.split(":")[1];
                             switch (gameState) {
                                 case "2OU1":
-                                    System.out.println(gameState);
+                                    System.out.println("Dois ou um");
                                     break;
                                 case "PAROUIMPAR":
-                                    System.out.println(gameState);
+                                    System.out.println("Par ou ímpar");
                                     break;
                                 case "ESCOLHER":
                                     jaEscolheu = false;
-                                    System.out.println(gameState);
+                                    System.out.println("Escolha um número");
                                     break;
                                 case "PERDEU":
-                                    System.out.println(gameState);
+                                    System.out.println("Você perdeu!");
                                     closeEveryThing(socket, bufferedReader, bufferedWriter);
                                     break;
                                 case "VENCEU":
-                                    System.out.println(gameState);
+                                    System.out.println("Parabéns!! Você venceu!!");
                                     closeEveryThing(socket, bufferedReader, bufferedWriter);
                                 default:
-                                    System.out.println("Deu ruim");
+                                    System.out.println("Algo inesperado aconteceu");
                                     break;
                             }
                         }
