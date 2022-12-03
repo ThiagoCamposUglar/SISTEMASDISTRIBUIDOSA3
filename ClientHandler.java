@@ -102,7 +102,7 @@ public class ClientHandler implements Runnable {
 
     public void venceu(){
         try {
-            this.bufferedWriter.write("VENCEU");
+            this.bufferedWriter.write("GAMESTATE:VENCEU");
             this.bufferedWriter.newLine();
             this.bufferedWriter.flush();
         } 
@@ -113,7 +113,7 @@ public class ClientHandler implements Runnable {
 
     public void perdeu(){
         try {
-            this.bufferedWriter.write("PERDEU");
+            this.bufferedWriter.write("GAMESTATE:PERDEU");
             this.bufferedWriter.newLine();
             this.bufferedWriter.flush();
         } 

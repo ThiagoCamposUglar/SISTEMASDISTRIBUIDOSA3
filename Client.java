@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.Socket;
-import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Client {
@@ -34,30 +33,33 @@ public class Client {
             bufferedWriter.flush();
 
             Scanner scanner = new Scanner(System.in);
-            while(socket.isConnected()){
+            while(!socket.isClosed()){
                 int numero = 1;
                 try {
-                    numero = scanner.nextInt();
-                } catch (InputMismatchException e) {
+                    String txt = scanner.nextLine();
+                    if(socket.isClosed()){
+                        break;
+                    }
+                    if(gameState.isEmpty()){
+                        System.out.println("O jogo ainda nao comecou.");
+                        continue;
+                    }
+                    if(jaEscolheu){
+                        System.out.println("Você ja escolheu");
+                        continue;
+                    }
+                    numero = Integer.parseInt(txt);
+                } catch (NumberFormatException e) {
                     System.out.println("Número inválido!");
                     continue;
                 }
                 catch(Exception e){
                     e.printStackTrace();
                 }
-                if(gameState.isEmpty()){
-                    System.out.println("O jogo ainda nao comecou.");
-                    continue;
-                }
-                if(gameState.equals("2OU1") && (numero != 1 || numero != 2)){
+                if(gameState.contains("2OU1") && (numero != 1 && numero != 2)){
                     System.out.println("Número inválido para dois ou um!");
-                    continue;
                 }
-                if(jaEscolheu){
-                    System.out.println("Você ja escolheu");
-                    continue;
-                }
-                if(gameState != "ESCOLHER"){
+                else if(gameState.contains("ESCOLHER")){
                     bufferedWriter.write(String.valueOf(numero));
                     bufferedWriter.newLine();
                     bufferedWriter.flush();
@@ -78,7 +80,7 @@ public class Client {
             public void run() {
                 String messageServer;
 
-                while(socket.isConnected()){
+                while(!socket.isClosed()){
                     try {
                         messageServer = bufferedReader.readLine();
                         if(messageServer.contains("GAMESTATE")){
@@ -90,7 +92,8 @@ public class Client {
                                 case "PAROUIMPAR":
                                     System.out.println("Par ou ímpar");
                                     break;
-                                case "ESCOLHER":
+                                case "ESCOLHER-PAROUIMPAR":
+                                case "ESCOLHER-2OU1":
                                     jaEscolheu = false;
                                     System.out.println("Escolha um número");
                                     break;
@@ -101,6 +104,7 @@ public class Client {
                                 case "VENCEU":
                                     System.out.println("Parabéns!! Você venceu!!");
                                     closeEveryThing(socket, bufferedReader, bufferedWriter);
+                                    break;
                                 default:
                                     System.out.println("Algo inesperado aconteceu");
                                     break;
@@ -142,6 +146,7 @@ public class Client {
 
         Socket socket = new Socket("localhost", 1234);
         Client client = new Client(socket, username);
+        System.out.println("Esperando jogo começar");
         client.listenForMessage();
         client.sendMessage();
         scanner.close();

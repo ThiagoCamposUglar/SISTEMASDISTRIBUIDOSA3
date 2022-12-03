@@ -50,8 +50,13 @@ public class Server {
               iniciarParOuImpar();
             }
             else{
-              if(!ClientHandler.gameState.equals("ESCOLHER")){
-                ClientHandler.gameState = "ESCOLHER";
+              if(!ClientHandler.gameState.contains("ESCOLHER")){
+                if(ClientHandler.clientHandlers.size() != 2){
+                   ClientHandler.gameState = "ESCOLHER-2OU1";
+                }
+                else{
+                  ClientHandler.gameState = "ESCOLHER-PAROUIMPAR";
+                }
                 ClientHandler.changeClientsGameState(ClientHandler.gameState);
               }
               else{
@@ -74,8 +79,9 @@ public class Server {
       ClientHandler.gameState = "2OU1";
       ClientHandler.changeClientsGameState(ClientHandler.gameState);
       System.out.println("Dois ou um");
+      ClientHandler ch = null;
       for(ClientHandler i : ClientHandler.clientHandlers){
-        ClientHandler ch = i;
+        ch = i;
         for(ClientHandler j : ClientHandler.clientHandlers){
           if(!i.getClientUserName().equals(j.getClientUserName()) && i.getNumeroEscolhido() == j.getNumeroEscolhido()){
             ch = null;
@@ -93,6 +99,9 @@ public class Server {
           break;
         }
       }
+      if(ch == null){
+        ClientHandler.broadCastMessage("Ninguém perdeu");
+      }
       ClientHandler.resetHandlers();
     }
     
@@ -104,6 +113,11 @@ public class Server {
       }
       if(soma % 2 == 1){
         ClientHandler clientHandler = ClientHandler.clientHandlers.get(1);
+        clientHandler.removeClientHandler();
+        clientHandler.perdeu();
+      }
+      else{
+        ClientHandler clientHandler = ClientHandler.clientHandlers.get(0);
         clientHandler.removeClientHandler();
         clientHandler.perdeu();
       }
