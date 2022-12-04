@@ -41,7 +41,7 @@ public class Client {
                         break;
                     }
                     if(gameState.isEmpty()){
-                        System.out.println("O jogo ainda nao comecou.");
+                        System.out.println("O jogo ainda nao começou.");
                         continue;
                     }
                     if(jaEscolheu){

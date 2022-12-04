@@ -16,7 +16,7 @@ public class Server {
 
     public void startServer() throws InterruptedException {
       try {
-        System.out.println("Esperando os " + numeroDeJogadores + " se conectarem/Número de vencedores: " + numeroDeVencedores);
+        System.out.println("Esperando os " + numeroDeJogadores + " se conectarem / Número de vencedores: " + numeroDeVencedores);
         while(!serverSocket.isClosed()){
           if(ClientHandler.gameState.isEmpty()){
             Socket socket = this.serverSocket.accept();
@@ -56,6 +56,9 @@ public class Server {
                 }
                 else{
                   ClientHandler.gameState = "ESCOLHER-PAROUIMPAR";
+                  for(int i = 0; i <= 1; i++){
+                    ClientHandler.broadCastMessage(ClientHandler.clientHandlers.get(i).getClientUserName() + " é " + (i == 0 ? "ímpar" : "par"));
+                  }
                 }
                 ClientHandler.changeClientsGameState(ClientHandler.gameState);
               }
@@ -79,6 +82,9 @@ public class Server {
       ClientHandler.gameState = "2OU1";
       ClientHandler.changeClientsGameState(ClientHandler.gameState);
       System.out.println("Dois ou um");
+      for (ClientHandler clientHandler : ClientHandler.clientHandlers) {
+        ClientHandler.broadCastMessage(clientHandler.getClientUserName() + " escolheu " + clientHandler.getNumeroEscolhido());
+      }
       ClientHandler ch = null;
       for(ClientHandler i : ClientHandler.clientHandlers){
         ch = i;
@@ -106,9 +112,10 @@ public class Server {
     }
     
     public void iniciarParOuImpar(){
-      System.out.println("Par ou impar");
+      System.out.println("Par ou ímpar");
       int soma = 0;
       for(ClientHandler clientHandler : ClientHandler.clientHandlers){
+        ClientHandler.broadCastMessage(clientHandler.getClientUserName() + " escolheu " + clientHandler.getNumeroEscolhido());
         soma += clientHandler.getNumeroEscolhido();
       }
       if(soma % 2 == 1){
@@ -139,7 +146,7 @@ public class Server {
       int numeroDeJogadores;
       int numeroDeVencedores;
       try {
-        System.out.println("Insira o numero de jogadores que irao participar(2 a 10):");
+        System.out.println("Insira o número de jogadores que irão participar(2 a 10):");
         numeroDeJogadores = input.nextInt();
       } catch (Exception e) {
         numeroDeJogadores = 2;
@@ -147,7 +154,7 @@ public class Server {
 
       if(numeroDeJogadores > 2){
         try {
-          System.out.println("Insira o numero vencedores(1 ou 2)");
+          System.out.println("Insira o número vencedores(1 ou 2)");
           numeroDeVencedores = input.nextInt();
         } catch (Exception e) {
           numeroDeVencedores = 1;
